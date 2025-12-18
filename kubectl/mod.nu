@@ -71,6 +71,9 @@ export def --env "k clear" [
   --no-namespace # Don't clear the KUBE_NAMESPACE environment variable.
   --no-kubeconfig # Don't clear the current context from the KUBECONFIG.
 ] : nothing -> nothing {
+  let env_context = $env.KUBE_CONTEXT?
+  let kubeconfig_context = ^kubectl config current-context | complete | get stdout | str trim | default -e null
+
   if not $no_context {
     hide-env -i KUBE_CONTEXT
   }
@@ -78,7 +81,14 @@ export def --env "k clear" [
     hide-env -i KUBE_NAMESPACE
   }
   if not $no_kubeconfig {
-    ^kubectl config unset current-context
+    if $env_context != null {
+      ^kubectl config unset contexts.($env_context).namespace | ignore
+    }
+    if $kubeconfig_context != null {
+      ^kubectl config unset contexts.($kubeconfig_context).namespace | ignore
+    }
+
+    ^kubectl config unset current-context | ignore
   }
 }
 
