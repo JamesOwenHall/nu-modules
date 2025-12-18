@@ -59,15 +59,16 @@ export alias "k sw" = k switch
 # Switch namespace.
 export def --env "k namespace" [
   namespace: string # The namespace to use.
-] {
+] : nothing -> string {
   $env.KUBE_NAMESPACE = $namespace
+  $namespace
 }
 export alias "k ns" = k namespace
 
 # Clear the context and namespace.
 export def --env "k clear" [
-  --no-context # Don't clear the context.
-  --no-namespace # Don't clear the namespace.
+  --no-context # Don't clear the KUBE_CONTEXT environment variable.
+  --no-namespace # Don't clear the KUBE_NAMESPACE environment variable.
   --no-kubeconfig # Don't clear the current context from the KUBECONFIG.
 ] : nothing -> nothing {
   if not $no_context {
