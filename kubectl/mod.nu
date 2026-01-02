@@ -26,30 +26,26 @@ export def --wrapped "k get" [
     return
   }
 
-  if $no_parse or ($output != null and $output != "wide") {
-    return (kubectl get --context=($context) --namespace=($namespace) --output=($output) ...$rest)
-  }
-
   # Nushell doesn't parse shorthand flags without spaces (e.g. -ojson). Skip parsing it.
   if ($rest | any { $in | str starts-with "-o" }) {
     return (kubectl get --context=($context) --namespace=($namespace) ...$rest)
   }
 
   let non_flag_args = $rest | where { not ($in | str starts-with "-") }
-  match ($non_flag_args | length) {
-    0 => (kubectl get --context=($context) --namespace=($namespace) --output=($output) ...$rest)
+  if $no_parse or ($output != null and $output != "wide") or ("all" in $non_flag_args) {
+    return (kubectl get --context=($context) --namespace=($namespace) --output=($output) ...$rest)
+  }
+
+  if ($non_flag_args | length) == 2 {
     # Selecting a particular resource.
-    2 => {
-      let output = $output | default "yaml"
-      kubectl get --context=($context) --namespace=($namespace) --output=($output) ...$rest
-    }
+    let output = $output | default "yaml"
+    kubectl get --context=($context) --namespace=($namespace) --output=($output) ...$rest
+  } else {
     # Listing resources of a given type. If the length is 1, we're listing all resources of that type. If the length is
     # greater than 2, we're listing multiple resources of that type. Either way, parse the output into a table.
-    _ => {
-      kubectl get --context=($context) --namespace=($namespace) --output=($output) ...$rest
-        | from ssv -a
-        | update AGE? { from go-duration }  
-    }
+    kubectl get --context=($context) --namespace=($namespace) --output=($output) ...$rest
+      | from ssv -a
+      | update AGE? { from go-duration }  
   }
 }
 
