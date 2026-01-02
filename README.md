@@ -51,3 +51,9 @@ Input/output types:
   │ 0 │ nothing │ any    │
   ╰───┴─────────┴────────╯
 ```
+
+### Installation
+
+```nu
+overlay use ~/path/to/nu-modules/kubectl
+```
