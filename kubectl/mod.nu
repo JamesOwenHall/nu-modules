@@ -1,6 +1,9 @@
 # Module for kubernetes. All commands throughout the module honour the KUBE_CONTEXT and KUBE_NAMESPACE environment
 # variables. This allows you to use different contexts and namespaces between multiple open terminal sessions.
 
+export alias "k sw" = k switch
+export alias "k ns" = k namespace
+
 # Wrapper for kubectl that honours the KUBE_CONTEXT and KUBE_NAMESPACE environment variables.
 export def --wrapped k [
   --context:string # The context to use.
@@ -65,7 +68,6 @@ export def --env "k switch" [
 
   { context: $context, namespace: $namespace }
 }
-export alias "k sw" = k switch
 
 # Switch namespace.
 export def --env "k namespace" [
@@ -74,7 +76,6 @@ export def --env "k namespace" [
   $env.KUBE_NAMESPACE = $namespace
   $namespace
 }
-export alias "k ns" = k namespace
 
 # Clear the context and namespace.
 export def --env "k clear" [
